@@ -19,12 +19,11 @@
 
 @use "./common-defs" as common;
 
-$color_thu_purple_dark: #c353d3;
-$footer_color: #384452;
+$brand_color_dark: #c353d3;
 
-$color_thu_purple: if(
+$brand_color: if(
   map.get(jekyll-config(), "issue"),
-  $color_thu_purple_dark,
+  $brand_color_dark,
   #82318e
 );
 
@@ -99,16 +98,95 @@ h6,
 
 /* Footer */
 #footerwrap {
-  color: bs.$body-color-dark;
-  margin-top: 100px;
-  padding-top: 60px;
-  padding-bottom: 60px;
-  background: $footer_color;
-  a {
-    color: bs.$link-color-dark;
+  margin-top: 64px;
+  padding: 24px 0;
+  border-top: 1px solid var(--bs-border-color);
+  background: var(--bs-tertiary-bg);
+  color: var(--bs-secondary-color);
+
+  .site-footer__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
   }
-  a:hover {
-    color: bs.$link-hover-color-dark;
+
+  .site-footer__identity {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  .site-footer__title {
+    color: var(--bs-body-color);
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+  }
+
+  .site-footer__description,
+  .site-footer__meta {
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
+  .site-footer__meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px 16px;
+    text-align: right;
+  }
+
+  .site-footer__sources {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 8px 24px;
+    margin-top: 14px;
+    font-size: 12px;
+    line-height: 1.6;
+
+    a {
+      text-underline-offset: 3px;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .site-footer__projects {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 24px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    li {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 8px;
+      white-space: nowrap;
+    }
+  }
+
+  @media (max-width: 575.98px) {
+    margin-top: 40px;
+    padding: 20px 0;
+
+    .site-footer__inner {
+      flex-wrap: wrap;
+      gap: 12px 24px;
+    }
+
+    .site-footer__meta {
+      justify-content: flex-start;
+      text-align: left;
+    }
   }
 }
 
@@ -125,10 +203,6 @@ h6,
   display: inline-block;
   vertical-align: bottom;
   float: none;
-}
-
-.nonthu .thuhidden {
-  display: none;
 }
 
 svg.icon {
@@ -186,16 +260,16 @@ a {
 }
 
 .navbar-default {
-  --bs-navbar-active-color: #{$color_thu_purple};
-  --bs-navbar-hover-color: #{$color_thu_purple};
+  --bs-navbar-active-color: #{$brand_color};
+  --bs-navbar-hover-color: #{$brand_color};
   @include utils.dark {
-    --bs-navbar-active-color: #{$color_thu_purple_dark};
-    --bs-navbar-hover-color: #{$color_thu_purple_dark};
+    --bs-navbar-active-color: #{$brand_color_dark};
+    --bs-navbar-hover-color: #{$brand_color_dark};
   }
   .navbar-nav > li > a.active {
-    border-bottom: 2px solid $color_thu_purple;
+    border-bottom: 2px solid $brand_color;
     @include utils.dark {
-      border-bottom-color: $color_thu_purple_dark;
+      border-bottom-color: $brand_color_dark;
     }
   }
   .navbar-nav > li > a {

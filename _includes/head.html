@@ -9,13 +9,14 @@
 <meta name="description" content="{{ page_desc }}">
 <meta name="keywords" content="镜像站,镜像源,Linux,软件源,开源">
 <meta name="author" content="{{ site.author }}">
-<link rel="shortcut icon" href="/static/img/favicon.png">
+<link rel="icon" href="data:,">
+{% unless site.hide_news %}
 <link rel="alternate" type="application/rss+xml" title="镜像站新闻" href="/feed.xml">
+{% endunless %}
 
 <!-- Open Graph metadata -->
 <meta property="og:title" content="{{ page_title }}" />
 <meta property="og:description" content="{{ page_desc  }}" />
-<meta property="og:image" content="{{ site.url }}{{ site.baseurl }}/static/img/logo-share.png" /> <!-- WeChat requires that thumbnail image is larger than 300x300 -->
 <meta property="og:url" content="{{ site.url }}{{ site.baseurl }}{{ page.url }}" />
 <meta property="og:locale" content="zh_CN" />
 {% if include.notArticle %}
@@ -31,6 +32,19 @@
 <title>{{ page_title }}</title>
 {% unless include.nostyle %}
 {% include vite_script.html %}
+{% if site.container_mode %}
+<script>
+  (function () {
+    try {
+      if (window.CSS && CSS.supports('color', 'var(--fake-var)')) return;
+    } catch (e) {}
+    var style = document.createElement('link');
+    style.rel = 'stylesheet';
+    style.href = '{% vite_asset_path bs3-polyfill.scss %}';
+    document.head.appendChild(style);
+  })();
+</script>
+{% else %}
 <link rel="stylesheet" id="style-polyfill-bs3" title="style-polyfill-bs3" href="{% vite_asset_path bs3-polyfill.scss %}" media="screen" integrity="sha256-OnlyforlegacybrowsersAAAAAAAAAAAAAAAAAAAAAA=" />
 <script>
   (function(){
@@ -82,6 +96,7 @@
     }
   })();
 </script>
+{% endif %}
 {% if page.legacy %}
 <style>
 .container {

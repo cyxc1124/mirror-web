@@ -1,5 +1,3 @@
-@use "./utils.scss" as utils;
-
 .not-found {
   height: 600px;
 
@@ -9,35 +7,6 @@
   align-items: center;
 
   position: relative;
-}
-
-.not-found-bg {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  top: 0;
-
-  z-index: -1;
-
-  background-repeat: no-repeat;
-  background-position: center;
-
-  @include utils.noissue {
-    opacity: 0.5;
-    filter: grayscale(0.2);
-    @include utils.imgurl("../imgs/missing", "light");
-  }
-
-  @include utils.dark {
-    opacity: 1;
-    filter: none;
-    @include utils.imgurl("../imgs/missing", "dark");
-  }
-}
-
-.nonthu .not-found-bg {
-  background-image: none;
 }
 
 .not-found-hint {
