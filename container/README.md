@@ -53,6 +53,6 @@ Fork releases use the independent `cyxc-vMAJOR.MINOR.PATCH` Git tag namespace, s
 
 `.github/workflows/docker-images.yml` builds the `web` target for linux/amd64 and linux/arm64 using the production profile. Pull requests build without publishing. Pushes to master and `cyxc-v*` tags, plus manual workflow runs, publish to GHCR using GITHUB_TOKEN. Release images preserve the complete Git tag, for example `ghcr.io/cyxc1124/mirror-web:cyxc-v0.2.0`. Master builds also publish `latest` and `sha-<short SHA>` for development.
 
-After a fork-tag image build succeeds, the workflow creates its GitHub Release. The web chart package is attached to that release. Its current chart version is `0.2.0`, appVersion and image.tag are `cyxc-v0.2.0`, and its image pull policy is `IfNotPresent`.
+After a fork-tag image build succeeds, the workflow creates its GitHub Release. Deploy the workspace web chart directly from its source directory. Its current chart version is `0.2.0`, appVersion and image.tag are `cyxc-v0.2.0`, and its image pull policy is `IfNotPresent`.
 
 Builder stages are no longer published as separate images. `Dockerfile.build` remains the original standalone build-environment option; the deployment workflow and Helm charts use the new Dockerfile's final runtime image.
