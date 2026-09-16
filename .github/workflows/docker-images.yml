@@ -2,7 +2,7 @@ name: docker-images
 on:
   push:
     branches: [master]
-    tags: ['v*']
+    tags: ['cyxc-v*']
   pull_request:
     branches: [master]
   workflow_dispatch:
@@ -24,6 +24,13 @@ jobs:
       - uses: actions/checkout@v7
         with:
           submodules: true
+      - name: Validate fork release tag
+        if: github.ref_type == 'tag'
+        run: |
+          if [[ ! "$GITHUB_REF_NAME" =~ ^cyxc-v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo 'Release tags must use cyxc-vMAJOR.MINOR.PATCH.' >&2
+            exit 1
+          fi
       - uses: docker/setup-qemu-action@v3
       - uses: docker/setup-buildx-action@v4
       - uses: docker/login-action@v4
@@ -36,10 +43,11 @@ jobs:
         id: meta
         with:
           images: ghcr.io/${{ github.repository }}
+          flavor: latest=false
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=sha
-            type=semver,pattern={{version}}
+            type=ref,event=tag
       - uses: docker/build-push-action@v7
         with:
           context: .
@@ -52,3 +60,27 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha,scope=web
           cache-to: type=gha,mode=max,scope=web
+
+  release:
+    needs: images
+    if: github.ref_type == 'tag' && startsWith(github.ref_name, 'cyxc-v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Create fork release
+        uses: softprops/action-gh-release@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: ${{ github.ref_name }}
+          name: CYXC Mirror Web ${{ github.ref_name }}
+          body: |
+            CYXC fork release built from `${{ github.sha }}`.
+
+            Container image: `ghcr.io/${{ github.repository }}:${{ github.ref_name }}`
+            Platforms: Linux amd64 and arm64.
+
+            The official NGINX-based runtime includes the precompiled production website, fancyindex, and njs.
+            No website compilation is performed when the container starts.
+            The `cyxc-v` prefix reserves an independent release namespace for this fork.
+          prerelease: false

@@ -53,7 +53,7 @@ bundle exec jekyll serve --livereload # 实时预览
 ```bash
 git submodule update --init
 docker build --build-arg SITE_CONFIG=container/site-production.yml \
-  -t ghcr.io/cyxc1124/mirror-web:latest .
+  -t ghcr.io/cyxc1124/mirror-web:cyxc-v0.2.0 .
 ```
 
 生产站点配置保存在 `container/site-production.yml`，CI 使用相同的构建参数，只发布最终运行镜像。Helm 拉取的 `ghcr.io/cyxc1124/mirror-web` 就是包含本站产物的 NGINX 派生镜像。目录索引所需的 fancyindex 在独立中间阶段编译，最终阶段复用官方镜像中的 NGINX 和 njs。修改页面、页脚或站点域名后，需要重新构建并部署镜像；Helm 不再传递 Jekyll 配置。
@@ -61,6 +61,8 @@ docker build --build-arg SITE_CONFIG=container/site-production.yml \
 运行镜像监听 8080 端口，以只读方式挂载 `/data/mirrors`，并通过 `TUNASYNC_MANAGER_URL` 连接 manager 的只读状态接口。工作区中的 `charts/` 集合提供完整的 Helm 部署：web Pod 仅启动 NGINX，直接提供镜像内的页面、目录索引与文件下载，无需 Ruby、Node.js 或初始化构建容器。
 
 完整说明见 [容器部署文档](container/README.md)。`Dockerfile.build` 仍保留为原有独立构建环境，GHCR 发布工作流与 Helm 部署使用新 Dockerfile 的 `web` 目标。
+
+fork 发行版使用独立的 `cyxc-vMAJOR.MINOR.PATCH` 标签，避免与上游标签重名。当前发行标识为 `cyxc-v0.2.0`，镜像保留同名 tag；web chart 的版本为 `0.2.0`，`appVersion` 为 `cyxc-v0.2.0`，拉取策略为 `IfNotPresent`。镜像构建成功后，工作流会创建对应的 GitHub Release。
 
 ### 编译流程
 

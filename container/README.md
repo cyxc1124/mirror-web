@@ -21,7 +21,7 @@ Build the runtime image after initializing submodules:
 ```sh
 git submodule update --init
 docker build --build-arg SITE_CONFIG=container/site-production.yml \
-  -t ghcr.io/cyxc1124/mirror-web:latest .
+  -t ghcr.io/cyxc1124/mirror-web:cyxc-v0.2.0 .
 ```
 
 The Dockerfile defaults to the production profile. Another checked-in profile can be selected with `--build-arg SITE_CONFIG=container/site-other.yml`; use `--build-arg SITE_CONFIG=` to build only the reusable defaults. Paths are relative to the repository and must be included in the Docker build context. Do not put credentials in website configuration or build arguments.
@@ -49,6 +49,10 @@ The private site uses a compact shared footer without upstream organizational br
 
 ## CI publishing
 
-`.github/workflows/docker-images.yml` builds the `web` target for linux/amd64 and linux/arm64 using the production profile. Pull requests build without publishing. Pushes to master and version tags, plus manual workflow runs, publish to GHCR using GITHUB_TOKEN. Runtime tags are `latest` for the default branch, `sha-<short SHA>`, and `X.Y.Z` for version releases. Pin a commit or version tag in production.
+Fork releases use the independent `cyxc-vMAJOR.MINOR.PATCH` Git tag namespace, starting with `cyxc-v0.2.0`. Keep upstream tags unchanged and never move or reuse a published fork tag.
+
+`.github/workflows/docker-images.yml` builds the `web` target for linux/amd64 and linux/arm64 using the production profile. Pull requests build without publishing. Pushes to master and `cyxc-v*` tags, plus manual workflow runs, publish to GHCR using GITHUB_TOKEN. Release images preserve the complete Git tag, for example `ghcr.io/cyxc1124/mirror-web:cyxc-v0.2.0`. Master builds also publish `latest` and `sha-<short SHA>` for development.
+
+After a fork-tag image build succeeds, the workflow creates its GitHub Release. The web chart package is attached to that release. Its current chart version is `0.2.0`, appVersion and image.tag are `cyxc-v0.2.0`, and its image pull policy is `IfNotPresent`.
 
 Builder stages are no longer published as separate images. `Dockerfile.build` remains the original standalone build-environment option; the deployment workflow and Helm charts use the new Dockerfile's final runtime image.
