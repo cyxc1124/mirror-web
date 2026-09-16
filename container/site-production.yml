@@ -1,0 +1,5 @@
+# Production website settings compiled into the runtime image by CI.
+# Rebuild and deploy a new image to apply changes to these settings.
+url: https://mirrors.cyxc.club:7443
+url_internal: https://mirrors.cyxc.club
+hostname: mirrors.cyxc.club

@@ -46,24 +46,21 @@ bundle exec jekyll serve --livereload # 实时预览
 * `JEKYLL_ENV=production`：编译生产版本（启用代码压缩），可能需要较长时间。
 * `VISUALIZER=true`：生成 Rollup 编译体积分析文件到 `_stats.html`。
 
-### Docker 部署
+### 容器与 Kubernetes 部署
 
-仓库中的 `Dockerfile.build` 也可用于编译，推荐在生产环境部署时使用。
-
-可用以下命令构建（如依赖无变化，镜像无需重复构建）：
+使用根目录的多阶段 `Dockerfile`，在构建镜像时完成 Jekyll/Vite 编译，再将静态产物复制到以官方 `nginx:1.30.5-trixie` 为基础的最终运行镜像：
 
 ```bash
-docker build -t tunathu/mirror-web -f Dockerfile.build .
-docker pull tunathu/mirror-web # 或者直接拉取
+git submodule update --init
+docker build --build-arg SITE_CONFIG=container/site-production.yml \
+  -t ghcr.io/cyxc1124/mirror-web:latest .
 ```
 
-构建时，仅需将本地目录挂载到容器中：
+生产站点配置保存在 `container/site-production.yml`，CI 使用相同的构建参数，只发布最终运行镜像。Helm 拉取的 `ghcr.io/cyxc1124/mirror-web` 就是包含本站产物的 NGINX 派生镜像。目录索引所需的 fancyindex 在独立中间阶段编译，最终阶段复用官方镜像中的 NGINX 和 njs。修改页面、页脚或站点域名后，需要重新构建并部署镜像；Helm 不再传递 Jekyll 配置。
 
-```bash
-docker run --rm -v /path/to/mirror-web:/data tunathu/mirror-web
-```
+运行镜像监听 8080 端口，以只读方式挂载 `/data/mirrors`，并通过 `TUNASYNC_MANAGER_URL` 连接 manager 的只读状态接口。工作区中的 `charts/` 集合提供完整的 Helm 部署：web Pod 仅启动 NGINX，直接提供镜像内的页面、目录索引与文件下载，无需 Ruby、Node.js 或初始化构建容器。
 
-即可在 `/path/to/mirror-web/_site` 中得到编译结果。
+完整说明见 [容器部署文档](container/README.md)。`Dockerfile.build` 仍保留为原有独立构建环境，GHCR 发布工作流与 Helm 部署使用新 Dockerfile 的 `web` 目标。
 
 ### 编译流程
 

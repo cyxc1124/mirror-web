@@ -1,0 +1,33 @@
+container_mode: true
+title: Open Source Mirror
+school: ""
+brand: Open Source Mirror
+operator: ""
+author: Mirror Operator
+desc: Open source software mirrors and synchronization status.
+url: ""
+hostname: ""
+urlv4: false
+urlv6: false
+homelink: /
+logo: false
+meow_404: false
+hide_navbar: true
+hide_news: true
+hide_contact: true
+hide_download: true
+hide_server_status: true
+hide_mirrorz: true
+sponsor: []
+helpz:
+  enabled_pages_file: ../container/enabled.yaml
+exclude:
+  - news
+  - news.html
+  - feed.xml
+  - gen_robot.sh
+  - geninfo/
+  - gen_desc.py
+  - container/
+  - AGENTS.md
+  - Dockerfile.dockerignore

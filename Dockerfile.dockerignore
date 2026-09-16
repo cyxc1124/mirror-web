@@ -1,0 +1,16 @@
+.git
+**/.git
+.github
+AGENTS.md
+node_modules
+vendor
+_site
+.jekyll-cache
+.jekyll-metadata
+.bundle
+.codegraph
+.vscode
+.DS_Store
+_stats.html
+static/tunasync.json
+static/status

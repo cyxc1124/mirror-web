@@ -1,0 +1,57 @@
+load_module /usr/lib/nginx/modules/ngx_http_js_module.so;
+load_module /usr/lib/nginx/modules/ngx_http_fancyindex_module.so;
+worker_processes auto;
+pid /tmp/nginx.pid;
+error_log /dev/stderr warn;
+events { worker_connections 1024; }
+http {
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+    access_log /dev/stdout;
+    sendfile on;
+    server_tokens off;
+    client_body_temp_path /tmp/client_temp;
+    proxy_temp_path /tmp/proxy_temp;
+    fastcgi_temp_path /tmp/fastcgi_temp;
+    uwsgi_temp_path /tmp/uwsgi_temp;
+    scgi_temp_path /tmp/scgi_temp;
+    server {
+        listen 8080;
+        # Preserve the public scheme and port behind ingress and router DNAT.
+        absolute_redirect off;
+        root /srv/site;
+        index index.html;
+        subrequest_output_buffer_size 1m;
+        location = /healthz { access_log off; default_type text/plain; return 200 'ok\n'; }
+        location = /static/tunasync.json {
+            limit_except GET { deny all; }
+            proxy_pass ${TUNASYNC_MANAGER_URL}/jobs;
+            proxy_pass_request_body off;
+            proxy_set_header Content-Length "";
+            proxy_connect_timeout 3s;
+            proxy_read_timeout 10s;
+            add_header Cache-Control 'no-store' always;
+        }
+        js_path /srv/site/static/njs;
+        js_import fancyIndexRender from fancy_index.njs;
+        js_import legacyIndexRender from legacy_index.njs;
+        location = /legacy_index { js_content legacyIndexRender.legacyIndexRender; }
+        location /fancy-index {
+            internal;
+            subrequest_output_buffer_size 128k;
+            location = /fancy-index/before { js_content fancyIndexRender.fancyIndexBeforeRender; }
+            location = /fancy-index/after { js_content fancyIndexRender.fancyIndexAfterRender; }
+        }
+        location / { try_files $uri $uri.html $uri/ @mirrors; }
+        location @mirrors {
+            root /data/mirrors;
+            fancyindex on;
+            fancyindex_time_format "%d %b %Y %H:%M:%S +0000";
+            fancyindex_show_path on;
+            fancyindex_header /fancy-index/before;
+            fancyindex_footer /fancy-index/after;
+            fancyindex_exact_size off;
+            fancyindex_name_length 256;
+        }
+    }
+}
